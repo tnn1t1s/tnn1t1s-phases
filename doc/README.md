@@ -4,6 +4,8 @@
 
 - [Phases user manual](PhasesUserManual.md): both modules, their controls,
   and recipes.
+- [EXPR examples](examples.md): the equations in the Examples menu and
+  where each one comes from.
 
 ## For contributors
 

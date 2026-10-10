@@ -39,8 +39,8 @@ receives squashed commits only. Version `2.0.0` (Rack 2, first release).
       `res/fonts/` and listed in `res/fonts/README.md`. ShareTechMono comes
       from Rack itself (`asset::system`) and is not bundled.
 - [ ] Panels are original artwork rendered by panelkit; no third-party marks.
-- [ ] The EXPR example equations in the context menu are listed with their
-      source in `doc/`.
+- [x] The EXPR example equations in the context menu are listed with their
+      source in `doc/examples.md`.
 - [ ] Nothing in the published git history is media, sample data or anything
       else outside this list.
 

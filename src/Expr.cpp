@@ -43,6 +43,7 @@
 #include "expr/ExprCompiler.hpp"
 #include "expr/ExprCondition.hpp"
 #include "expr/ExprDomain.hpp"
+#include "expr/ExprExamples.hpp"
 #include "expr/ExprHistory.hpp"
 #include "expr/ExprMath.hpp"
 #include "expr/ExprPreview.hpp"
@@ -86,22 +87,6 @@ static const float kLoopWhole = float(X::kLoopCount - 1);
 struct PosQuantity : ParamQuantity {
     std::string getDisplayValueString() override;
 };
-
-/// Example equations, one click away in the context menu. Each is written
-/// for the default 0..2π domain and closes at the end of the lap with its
-/// knobs on whole numbers.
-struct ExprExample { const char* name; const char* source; };
-static const ExprExample kExamples[] = {
-    {"Sine", "y = sin(x)"},
-    {"Harmonics (knobs a, b)", "y = sin(ax) + sin(bx)/2"},
-    {"Damped (knobs a, b)", "y = sin(ax) / cosh(b(x - \xCF\x80))"},
-    {"Half and half", "y = {x < \xCF\x80: sin x, -sin(2x)}"},
-    {"Pentatonic", "y = [0,2,4,7,9][floor(mod(5x/(2\xCF\x80), 5)) + 1] / 12"},
-    {"Folded", "y = 2.4sin(1.32|2mod(x/\xCF\x80, 1) - 1|)"},
-    {"Rose (polar, knob k)", "r = cos(k\xCE\xB8)"},
-    {"Lissajous (parametric)", "(cos(3t), sin(2t))"},
-};
-static const int kExampleCount = int(sizeof(kExamples) / sizeof(kExamples[0]));
 
 /// A program and its execution state, moved between threads as one unit.
 struct Prepared {
@@ -1745,8 +1730,15 @@ struct ExprWidget : ModuleWidget, SvgHelper<ExprWidget> {
         menu->addChild(createBoolPtrMenuItem("Show equation", "", &module->eqPanel.open));
         menu->addChild(createIndexPtrSubmenuItem("Layout", {"Rack panel", "Wide display"}, &module->wideLayout));
         menu->addChild(createSubmenuItem("Examples", "", [=](Menu* sub) {
-            for (int i = 0; i < kExampleCount; i++) {
-                const ExprExample& ex = kExamples[i];
+            sub->addChild(createMenuLabel("Patterns"));
+            for (int i = 0; i < X::kPatternExampleCount; i++) {
+                const X::Example& ex = X::kPatternExamples[i];
+                sub->addChild(createMenuItem(ex.name, "", [=] { commitProgram(module, ex.source); }));
+            }
+            sub->addChild(new MenuSeparator);
+            sub->addChild(createMenuLabel("Basics"));
+            for (int i = 0; i < X::kBasicExampleCount; i++) {
+                const X::Example& ex = X::kBasicExamples[i];
                 sub->addChild(createMenuItem(ex.name, "", [=] { commitProgram(module, ex.source); }));
             }
         }));

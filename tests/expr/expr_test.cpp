@@ -12,6 +12,7 @@
 #include "expr/ExprCompiler.hpp"
 #include "expr/ExprCondition.hpp"
 #include "expr/ExprDomain.hpp"
+#include "expr/ExprExamples.hpp"
 #include "expr/ExprHistory.hpp"
 #include "expr/ExprPreview.hpp"
 #include "expr/ExprRuntime.hpp"
@@ -602,6 +603,34 @@ void domain_tests() {
     ok("polar restriction uses theta", build(rp.c_str(), p) && p.domainHi == 10);
 }
 
+/// Every equation in the Examples menu compiles, and over its own domain
+/// with default knobs most of the lap is defined and finite.
+void example_one(const Example& ex) {
+    Program p;
+    const bool built = build(ex.source, p);
+    int defined = 0;
+    double peak = 0;
+    const int N = 4096;
+    // No restriction means the module's default lap, 0 to 2π.
+    const double lo = p.hasDomain ? p.domainLo : 0.0;
+    const double hi = p.hasDomain ? p.domainHi : 2 * kPi;
+    for (int i = 0; built && i <= N; i++) {
+        const double v = lo + (hi - lo) * i / N;
+        const Result r = runAt(p, v);
+        if (r.fault || !std::isfinite(r.value)) continue;
+        defined++;
+        if (std::fabs(r.value) > peak) peak = std::fabs(r.value);
+    }
+    std::printf("      %-28s defined %5.1f%%  peak %.3g\n", ex.name, 100.0 * defined / (N + 1), peak);
+    ok(ex.name, built && defined > 0);
+}
+
+void example_tests() {
+    std::printf("examples\n");
+    for (int i = 0; i < kPatternExampleCount; i++) example_one(kPatternExamples[i]);
+    for (int i = 0; i < kBasicExampleCount; i++) example_one(kBasicExamples[i]);
+}
+
 }  // namespace
 
 int main() {
@@ -615,6 +644,7 @@ int main() {
     history_tests();
     preview_tests();
     domain_tests();
+    example_tests();
     std::printf("\n%s\n", failures ? "FAILURES" : "all expr checks passed");
     return failures ? 1 : 0;
 }

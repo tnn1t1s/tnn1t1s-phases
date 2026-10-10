@@ -58,8 +58,8 @@ y = a sin(bx) / cosh(x/4)
 `a` and `b` are knobs 1 and 2, each a whole number from 0 to 10 starting
 at 1, so on the default 0 to 2π domain the curve always meets itself
 at the end of the lap. *Knob steps* in the menu makes a knob fine for an
-amplitude or an offset. Every example in the menu is written for 0 to
-2π. `r = cos(4θ)` is a polar curve and `(cos(3t), sin(2t))` a
+amplitude or an offset. The menu's Basics are written for 0 to 2π; its
+Patterns bring their own domains ([EXPR examples](examples.md)). `r = cos(4θ)` is a polar curve and `(cos(3t), sin(2t))` a
 parametric one; Y carries their y coordinate.
 
 **The domain.** The range one lap sweeps is part of the equation, written
