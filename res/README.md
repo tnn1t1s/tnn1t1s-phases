@@ -6,4 +6,4 @@ Runtime assets shipped with the plugin.
   specs and re-render, not the SVGs.
 - `fonts/` — fonts used by the panel toolkit and by NanoVG at runtime.
 
-Render a panel with `python -m panelkit render <Module>`.
+Render a panel with `uv run panelkit render <Module> --no-preview`.

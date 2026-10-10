@@ -147,13 +147,14 @@ borrow a machine for an hour or state it in the submission.
 
 ## 5. Docs and patches
 
-- [ ] `README.md`, `doc/PhasesUserManual.md` describe the two shipping
-      modules and nothing else; screenshots current.
+- [x] `README.md`, `doc/PhasesUserManual.md` describe the two shipping
+      modules and nothing else. There are no screenshots; the Library shows
+      the panel SVGs.
 - [ ] `CHANGELOG.md` 2.0.0 entry names PHASES PHASOR and PHASES EXPR (done)
       and gets a date on the day of the tag.
 - [x] One demo patch, `patches/demos/phases-ghost-groove.vcv`, built against
       `tnn1t1s-phases`; the Examples menu's patterns cover the other ideas.
-- [ ] `res/README.md`, `src/README.md`, `tests/README.md` match the tree.
+- [x] `res/README.md`, `src/README.md`, `tests/README.md` match the tree.
 
 ## 6. Local release verification
 

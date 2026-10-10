@@ -12,7 +12,7 @@ panel is the voltage leaving the module.
 | Module | Role |
 |---|---|
 | **PHASES PHASOR** | Clock-to-phase converter. One ramp lap every LAP beats of the clock; RATE speeds the lap up, as far as audio rate; freezes when the clock stops; RST snaps to the top; DIRECTION reverses; START and LEN window the lap. |
-| **PHASES EXPR** | A live-compiled equation whose argument is the wire. Type `y = a sin(bx)`, press Enter, and it is a voltage while the patch runs. Each undefined letter becomes one of six knob/CV slots, X gives it an argument without a transport, and the display draws the curve. Volts only, limited and optionally smoothed. |
+| **PHASES EXPR** | A live-compiled equation whose argument is the wire. Type `y = a sin(bx)`, press Cmd+Enter (Ctrl+Enter off the Mac), and it is a voltage while the patch runs. Each undefined letter becomes one of two knob/CV slots, X gives it an argument without a transport, and the display draws the curve. Volts only, limited and optionally smoothed. |
 
 The default patch is two cables: clock → PHASOR, then EXPR's Y to whatever it
 should move. EXPR with an unpatched PHASE input picks up the wire from a
@@ -31,13 +31,18 @@ r = cos(4θ)
 
 Implied multiplication, `|...|`, `π` and `θ`, piecewise braces and
 1-indexed lists all work as typed in Desmos, and each undefined letter
-becomes one of six knobs. The domain is written in the equation as a
+becomes one of two knobs. The domain is written in the equation as a
 restriction, `y = floor(x)/4 {0 ≤ x ≤ 16}`, and is 0 to 2π without one, so
 `sin(x)` is one cycle per lap. LOOP and POS play an exact slice of it, so a
 loop always meets itself at the wrap. There is no
 state: a clock reaches EXPR through PHASOR. An equation that fails to
 compile changes nothing. The saved description is plain JSON in the
 patch, so an agent can author it directly.
+
+Right-click EXPR → *Examples* loads a working equation: thirteen patterns,
+each with its own domain and two knobs, and a few basic shapes
+([doc/examples.md](doc/examples.md)). `patches/demos/phases-ghost-groove.vcv`
+puts one pattern in a full patch.
 
 ## Building
 
@@ -60,8 +65,8 @@ make -C tests/expr run  # the EXPR compiler and runtime
 ## Panels
 
 `res/*.svg` are generated from `panelkit/specs/panels/*.panel.yaml` by the
-external [panelkit](../panelkit) toolkit (a dev dependency wired to a
-local checkout):
+[panelkit](https://github.com/tnn1t1s/vcv-panelkit) toolkit, a dev
+dependency pinned in `uv.lock`:
 
 ```sh
 uv sync
@@ -71,6 +76,7 @@ uv run panelkit render <Module> --no-preview
 ## Documentation
 
 - [User manual](doc/PhasesUserManual.md)
+- [EXPR examples](doc/examples.md)
 - [The EXPR language](doc/dev/expr-language.md)
 - [The phase wire](doc/dev/phase-wire.md)
 - [Decision records](doc/decisions/)

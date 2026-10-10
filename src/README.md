@@ -9,5 +9,5 @@
 | `AgentModule.hpp` | Marker base class; carries the resolved wire. |
 | `lives/PhaseWire.hpp` | Transport resolution: cable, then adjacency (doc/dev/phase-wire.md). |
 | `lives/WireFresh.hpp` | The adjacency freshness rule, Rack-free so tests/wire covers it. |
-| `lives/LapCounter.hpp` | PHASE's pulse-to-lap counter, Rack-free so tests/wire covers it. |
+| `lives/LapCounter.hpp` | PHASOR's pulse-to-lap counter, Rack-free so tests/wire covers it. |
 | `lives/Denormal.hpp` | Denormal floor. |
