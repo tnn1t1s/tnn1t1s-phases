@@ -128,14 +128,14 @@ wire is never a trigger.
 | 1, 2 (+CV) | The equation's letters, in order of first appearance. Hover for the letter, range, CV scale and live value. The bottom of the display shows each letter and its live value straight above its knob. An unused slot does nothing; a slot the equation uses has an orange ring around its knob. |
 | LOOP (+CV) | The share of the domain one lap plays: 1/16 to the whole. The CV adds to the knob, 10 V sweeping all eight steps. |
 | POS (+CV) | Which slice plays. The CV adds to the knob, 10 V sweeping every slice, so a stepped CV sequences the slices. |
-| GAIN (+CV) | Scales the result, 0 to 2, unity at noon. On the bottom row with LIMIT, next to Y. |
+| GAIN (+CV) | Scales the result, 0 to 2, unity at noon. On the bottom row with LIMIT, next to X. |
 | LIMIT (+CV) | The limiter ceiling, 0.1 to 10 V, 5 V by default; the display's vertical scale follows it. |
 | Display | Click to edit the equation. Right-click → *Show equation* opens it typeset in a window over the rack: drag to move, drag the corner to resize, × to close. The window is saved with the patch. Right-click → *Layout* → *Wide display* makes the module 76 HP: the controls in a column on the left and the display across the rest, pushing the modules to its right along. |
 | PHASE (in) | The wire, mapped across the looped slice. Unpatched, follows the family module touching it. When the wire comes from a PHASOR, two dark grey bars on the display mark its START and START + LEN. |
 | RST (in) | Reset output smoothing. Does not move the wire. |
 | GAIN CV (in) | Added to the GAIN knob at 0.2× per volt, so 0 to 10 V sweeps it from 0 to 2 with the knob at zero. |
 | LIMIT CV (in) | Added to the LIMIT knob, 1 V per volt, held within 0.1 to 10 V. The display's scale follows the modulated ceiling. |
-| Y, X (out) | The curve's two coordinates as conditioned voltages: Y is the result, X is r cos θ for a polar equation, x(t) for a parametric one, and the swept x for a `y =` equation. Both go through the same gain, offset, limiter and smoothing. The light beside Y flashes on a fault (division by zero, `ln` of a nonpositive, overflow, or a piecewise with no branch for this x), so it also marks the gaps between pieces. |
+| X, Y (out) | The curve's two coordinates as conditioned voltages: Y is the result, X is r cos θ for a polar equation, x(t) for a parametric one, and the swept x for a `y =` equation. Both go through the same gain, offset, limiter and smoothing. The light beside Y flashes on a fault (division by zero, `ln` of a nonpositive, overflow, or a piecewise with no branch for this x), so it also marks the gaps between pieces. |
 
 **Volts.** A result of 1 is 1 V. Then GAIN, offset (menu), a limiter
 at ±LIMIT (hard, or a soft knee from the menu), optional lag or slew, and a

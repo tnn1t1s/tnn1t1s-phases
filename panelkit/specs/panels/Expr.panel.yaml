@@ -39,5 +39,5 @@ sections:
         - { label: RST,   id: trig.main.reset }
       - - { label: GAIN,  param: param.main.gain,  id: cv.main.gain }
         - { label: LIMIT, param: param.main.limit, id: cv.main.limit }
-      - - { label: Y,     id: out.main.y, light: light.main.fault }
-        - { label: X,     id: out.main.x }
+      - - { label: X,     id: out.main.x }
+        - { label: Y,     id: out.main.y, light: light.main.fault }

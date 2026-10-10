@@ -1662,14 +1662,14 @@ struct ExprWidget : ModuleWidget, SvgHelper<ExprWidget> {
             const float jackLabelDy = 15.f;
             centre(getInput(Expr::PHASE_INPUT), Vec(kKnobX, row(6)));
             centre(getInput(Expr::RST_INPUT), Vec(kJackX, row(6)));
-            centre(getOutput(Expr::Y_OUTPUT), Vec(kKnobX, row(7)));
-            centre(getOutput(Expr::X_OUTPUT), Vec(kJackX, row(7)));
+            centre(getOutput(Expr::Y_OUTPUT), Vec(kJackX, row(7)));
+            centre(getOutput(Expr::X_OUTPUT), Vec(kKnobX, row(7)));
             wideBg->labels.push_back({"IN", Vec(kLabelX, row(6)), 11.f});
             wideBg->labels.push_back({"OUT", Vec(kLabelX, row(7)), 11.f});
             wideBg->labels.push_back({"PHASE", Vec(kKnobX, row(6) + jackLabelDy), 7.f});
             wideBg->labels.push_back({"RST", Vec(kJackX, row(6) + jackLabelDy), 7.f});
-            wideBg->labels.push_back({"Y", Vec(kKnobX, row(7) + jackLabelDy), 7.f});
-            wideBg->labels.push_back({"X", Vec(kJackX, row(7) + jackLabelDy), 7.f});
+            wideBg->labels.push_back({"Y", Vec(kJackX, row(7) + jackLabelDy), 7.f});
+            wideBg->labels.push_back({"X", Vec(kKnobX, row(7) + jackLabelDy), 7.f});
             for (Widget* w : children) {
                 if (auto* l = dynamic_cast<ModuleLightWidget*>(w)) centre(l, Vec(kLabelX, row(7) - 12.f));
                 // The right-hand screws go to the new right edge.
