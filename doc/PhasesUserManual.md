@@ -1,5 +1,33 @@
 # Phases user manual
 
+## Getting started
+
+1. Add a clock (VCV's Clock, or Impromptu's Clocked) and run it.
+2. Add PHASES PHASOR and patch the clock's beat output into CLK. The CLK
+   light glows while pulses arrive.
+3. Add PHASES EXPR directly to the right of PHASOR, touching it. It picks
+   up PHASOR's ramp with no cable, and its display draws `sin(x)` with a
+   playhead moving across it, one cycle every 4 beats.
+4. Patch Y1 to something you can hear move: a filter cutoff, or a VCO's
+   V/OCT through a quantizer.
+5. Right-click EXPR → *Examples* and pick one of the Patterns. Turn GAIN down
+   first if Y feeds an audio path, because most patterns swing several
+   volts.
+
+If the playhead creeps, your clock sends more than one pulse per beat:
+turn RATE on PHASOR counter-clockwise until one lap takes LAP beats
+(24 PPQN for a drum machine's sync cable or the Ghost drums). The demo
+patch `patches/demos/phases-ghost-groove.vcv` is a complete groove built
+this way.
+
+Click EXPR's display to type your own equation. Cmd+Enter (Ctrl+Enter off
+the Mac) applies it. The notation, the function list and the error
+messages are in [The EXPR language](dev/expr-language.md).
+
+A few words used below: the *wire* is PHASOR's 0–10 V ramp; one *lap* is
+one rise from 0 V to 10 V; a *family module* is PHASOR or EXPR, which find
+each other's wire when they stand side by side.
+
 ## The wire
 
 Position travels between Phases modules as a 0–10 V ramp: 0 V is the top
@@ -34,7 +62,7 @@ interval sets the slope, so the ramp needs two pulses before it moves.
 | CLK (in) | A tempo clock; RATE says how many of its pulses make a beat. The jack's light glows while pulses arrive and flashes once per lap, so a dark light means no clock rather than one of the other reasons for silence. |
 | RST (in) | Opens a lap on the next pulse, anchoring lap boundaries to the transport rather than to whenever pulses began. The interrupted span is not measured as tempo. Patch it from your clock's RESET; without it the lap still runs in time, but where its boundary sits against the bar is arbitrary. |
 | LAP | Lap length in beats. Reads back in bars on hover: 4 is *1 bar*, 16 is *4 bars*. |
-| RATE | How fast the lap runs against the clock. It counts 48, 24, 16, 12, 8, 4, 2 or 1 pulses as a beat; on a 24 PPQN clock (the default, and what a drum machine takes off a sync cable) that reads on hover as ×0.5 up to ×24. Turned up on a fast clock, the lap reaches audio rate and EXPR's curve becomes a waveform. Most Rack clocks send one pulse per beat; set RATE to 1 for those. At RATE 1 with LAP 1, each pulse is a whole lap, so any trigger source drives the loop. |
+| RATE | How many clock pulses make a beat: 48, 24, 16, 12, 8, 4, 2 or 1, from fully counter-clockwise to fully clockwise. The default is 1, fully clockwise, which is what most Rack clocks send. A drum machine's sync cable and the Ghost drums run at 24 PPQN, one step clockwise from the bottom. Hover reads the pulses per beat and the speed against a 24 PPQN clock. On a fast clock, counting fewer pulses per beat pushes the lap to audio rate and EXPR's curve becomes a waveform. At RATE 1 with LAP 1, each pulse is a whole lap, so any trigger source drives the loop. |
 | DIR (+CV) | Forward or reverse ramp. The gate inverts the switch, so a momentary gate is a reverse stab; the flip lands immediately, mid-lap. |
 | START, LEN | The window: which part of the lap the wire plays. START offsets and wraps around the lap, LEN scales (5-100 %); a window can cross the end of the lap. Every follower windows together. Both have CV inputs (additive, 10 V = full range). |
 | PHASE (out) | The wire. Also read directly by a family module standing next to PHASOR, with no cable. |
@@ -49,7 +77,8 @@ open the editor; Enter makes a new line, Cmd+Enter (Ctrl+Enter off the Mac)
 applies. The box holds five lines, to keep equations short. A program that does
 not compile changes nothing — the previous one keeps playing and the
 editor says the line, column and what is wrong. Right-click → *Examples*
-loads a working program to edit from.
+loads a working program to edit from. Patterns swing several volts, so
+turn GAIN down before one reaches an audio path.
 
 ```text
 y = a sin(bx) / cosh(x/4)
@@ -116,11 +145,13 @@ with a 10 ms crossfade (menu: immediate, or 50 ms); the wire stays where
 it is. Edits are in Rack's undo
 history. The saved patch carries the program text and every setting as
 plain JSON, so a program can be written into a patch or preset without the
-editor. The language is documented in `doc/dev/expr-language.md`.
+editor. The language is documented in
+[The EXPR language](dev/expr-language.md).
 
 ## Recipes
 
-**One cycle per bar.** Clock → PHASOR, LAP at 4, EXPR beside it. The
+**One cycle per bar.** Clock → PHASOR, LAP at 4, RATE at the clock's
+pulses per beat, EXPR beside it. The
 default `sin(x)` on 0 to 2π is one sine per bar, ±1 V, locked to the
 transport: patch Y to a filter cutoff. Write `y = floor(x) / 4 {0 ≤ x ≤ 16}`
 for a 16-step staircase per bar; set LOOP to 1/4 and turn POS to play one
@@ -131,6 +162,6 @@ beat's four steps on repeat.
 pentatonic across the lap; patch Y to a VCO's V/OCT. Knob `a` sets how
 many notes one lap covers.
 
-**Head gestures.** A window is START and LEN on PHASOR, or an attenuverter
+**Moving the playhead.** A window is START and LEN on PHASOR, or an attenuverter
 and offset on the wire; reverse is DIR, or 10 V minus the wire; stutter is
 a sample-and-hold on it; scrub is any CV source into EXPR's PHASE input.

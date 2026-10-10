@@ -1,6 +1,6 @@
 # The EXPR language
 
-`src/expr/`. What LIVES EXPR compiles, how it runs, and what it promises.
+`src/expr/`. What PHASES EXPR compiles, how it runs, and what it promises.
 The language is one equation as Desmos writes it (DR-0008); the module's
 place in the family, with its two stated exceptions, is DR-0007.
 
@@ -30,8 +30,8 @@ The swept variable is whatever drives the module: the PHASE wire mapped
 across the domain (or the slice of it LOOP and POS select). With no wire
 it holds at the start of the slice. Using another mode's variable is an
 error that names the right form, so `y = sin(θ)` asks for `r =`. The
-compiled program returns both X and Y in every mode; the module has
-one output today, and it carries Y.
+compiled program returns both X and Y in every mode; the module puts Y
+on its outputs, Y1 and Y2 carrying the same voltage.
 
 ## Notation
 
@@ -152,7 +152,7 @@ Defaults: gain 1, offset 0 V, limit 5 V hard, smoothing off, fault → 0 V.
 ## Events
 
 RESET (jack, menu, or the editor's button) clears output smoothing. It
-does not touch the wire; reset PHASE for that. Per sample: accept a prepared program, read inputs, RESET, run,
+does not touch the wire; reset PHASOR for that. Per sample: accept a prepared program, read inputs, RESET, run,
 condition, record history.
 
 A wrap of the wire is never a trigger: a position wire alone cannot tell a

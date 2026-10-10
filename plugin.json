@@ -27,7 +27,7 @@
     {
       "slug": "Expr",
       "name": "PHASES EXPR",
-      "description": "A live-compiled equation on the wire, written the way Desmos writes it: y = a sin(bx), r = cos(4θ), (cos(3t), sin(2t)). Each undefined letter is a knob with CV. The domain is a restriction at the end of the equation, {0 ≤ x ≤ 16}, or 0 to 2π; LOOP and POS play an exact slice of it, so a loop meets itself at the wrap. X is a direct argument. The display draws the curve with the playhead on it. An equation that fails to compile changes nothing. Volts out, with gain, offset, limiting and smoothing.",
+      "description": "A live-compiled equation on the wire, written the way Desmos writes it: y = a sin(bx), r = cos(4θ), (cos(3t), sin(2t)). Each undefined letter is a knob with CV. The domain is a restriction at the end of the equation, {0 ≤ x ≤ 16}, or 0 to 2π; LOOP and POS play an exact slice of it, so a loop meets itself at the wrap. The display draws the curve with the playhead on it. An equation that fails to compile changes nothing. Volts out, with gain, offset, limiting and smoothing.",
       "tags": [
         "Function generator",
         "Utility",

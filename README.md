@@ -12,7 +12,7 @@ panel is the voltage leaving the module.
 | Module | Role |
 |---|---|
 | **PHASES PHASOR** | Clock-to-phase converter. One ramp lap every LAP beats of the clock; RATE speeds the lap up, as far as audio rate; freezes when the clock stops; RST snaps to the top; DIRECTION reverses; START and LEN window the lap. |
-| **PHASES EXPR** | A live-compiled equation whose argument is the wire. Type `y = a sin(bx)`, press Cmd+Enter (Ctrl+Enter off the Mac), and it is a voltage while the patch runs. Each undefined letter becomes one of two knob/CV slots, X gives it an argument without a transport, and the display draws the curve. Volts only, limited and optionally smoothed. |
+| **PHASES EXPR** | A live-compiled equation whose argument is the wire. Type `y = a sin(bx)`, press Cmd+Enter (Ctrl+Enter off the Mac), and it is a voltage while the patch runs. Each undefined letter becomes one of two knob/CV slots, and the display draws the curve. Volts only, limited and optionally smoothed. |
 
 The default patch is two cables: clock → PHASOR, then EXPR's Y to whatever it
 should move. EXPR with an unpatched PHASE input picks up the wire from a

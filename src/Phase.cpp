@@ -38,27 +38,26 @@ using namespace rack;
 
 extern Plugin* pluginInstance;
 
-// CLK rates, as a panel selector rather than a menu item. 24 PPQN is what a
-// drum machine takes off a sync cable and what the Ghost drums want, so it
-// stays the default -- but most Rack clocks emit roughly one pulse per beat,
-// and at the default those land a 96-pulse lap: twenty-four bars, which reads
-// as a dead module rather than a wrong setting. Putting the rate on the panel
-// is the difference between a visible knob and a right-click nobody opens.
-// Clockwise means fewer pulses per lap, so turning RATE up speeds the lap up.
-// Patches store the PPQN itself ("ppqn"), not the knob position.
+// CLK rates, as a panel selector rather than a menu item. Most Rack clocks
+// emit one pulse per beat, so that is the default: a new PHASOR on any of
+// them runs one lap every LAP beats with nothing to set. A drum machine's
+// sync cable and the Ghost drums run at 24 PPQN; one turn of RATE covers
+// them. A wrong rate reads as a dead or racing module, so it sits on the
+// panel, not in a menu. Clockwise means fewer pulses per lap, so turning
+// RATE up speeds the lap up. Patches store the PPQN itself ("ppqn") as
+// well as the knob position.
 static const int kRates[] = {48, 24, 16, 12, 8, 4, 2, 1};
 static const int kRateCount = 8;
-static const int kRateDefault = 1;   // 24 PPQN
 static const int kRateOne = 7;       // 1 pulse per beat
+static const int kRateDefault = kRateOne;
 
-// RATE reads as a speed: how much faster than LAP the ramp runs on a 24 PPQN
-// clock, the default and what Clocked's sync output sends. The PPQN it
-// counts is in brackets for any other clock. Turned all the way up, a fast
-// clock pushes the lap into audio rate.
+// RATE reads as the pulses it counts per beat, then as a speed against a
+// 24 PPQN clock. Turned all the way up, a fast clock pushes the lap into
+// audio rate.
 struct RateQuantity : ParamQuantity {
     std::string getDisplayValueString() override {
         int i = clamp((int) std::lround(getValue()), 0, kRateCount - 1);
-        return string::f("×%g on a 24 PPQN clock (counts %d PPQN)", 24.0 / kRates[i], kRates[i]);
+        return string::f("%d PPQN (×%g on a 24 PPQN clock)", kRates[i], 24.0 / kRates[i]);
     }
 };
 
@@ -278,9 +277,9 @@ struct Phase : AgentModule {
     // So the old contract cannot be restored there; it has to be restored
     // here, which is what fromJson is documented as being virtual for.
     //
-    // Without this such a patch keeps the new defaults, ppqn 24 and BEATS 4,
-    // giving a 96-pulse lap against an old contract of one pulse per lap:
-    // the whole patch plays 96x slow with nothing on screen to explain it.
+    // Without this such a patch keeps the defaults, ppqn 1 and BEATS 4,
+    // giving a 4-pulse lap against an old contract of one pulse per lap:
+    // the whole patch plays 4x slow with nothing on screen to explain it.
     // Module::fromJson loads params and calls dataFromJson first, so the
     // override lands after both and wins.
     void fromJson(json_t* rootJ) override {
