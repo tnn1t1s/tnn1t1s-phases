@@ -122,9 +122,8 @@ Both modules
 - [ ] Initialize, randomize, duplicate, and bypass behave.
 - [ ] Sample rates 44.1, 48, 96 and 192 kHz; engine threads 1 and 4.
 - [ ] Rack's dark-panel setting and UI zoom 50%–400% render correctly.
-- [ ] `patches/demos/` patches load from the packaged build. The one demo
-      there today (`expr-pentatonic.vcv`) is re-slugged to `tnn1t1s-phases`
-      and passes `tools/headless-check.sh`.
+- [x] `patches/demos/` patches load from the packaged build. The one demo,
+      `phases-ghost-groove.vcv`, passes `tools/headless-check.sh`.
 - [ ] `log.txt` has no warnings or errors from `tnn1t1s-phases` after a
       session.
 
@@ -152,8 +151,8 @@ borrow a machine for an hour or state it in the submission.
       modules and nothing else; screenshots current.
 - [ ] `CHANGELOG.md` 2.0.0 entry names PHASES PHASOR and PHASES EXPR (done)
       and gets a date on the day of the tag.
-- [ ] Demo patches in `patches/demos/` built against `tnn1t1s-phases`, one
-      per idea, each loading clean.
+- [x] One demo patch, `patches/demos/phases-ghost-groove.vcv`, built against
+      `tnn1t1s-phases`; the Examples menu's patterns cover the other ideas.
 - [ ] `res/README.md`, `src/README.md`, `tests/README.md` match the tree.
 
 ## 6. Local release verification
