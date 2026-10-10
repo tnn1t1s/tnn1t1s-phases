@@ -8,7 +8,7 @@
 3. Add PHASES EXPR directly to the right of PHASOR, touching it. It picks
    up PHASOR's ramp with no cable, and its display draws `sin(x)` with a
    playhead moving across it, one cycle every 4 beats.
-4. Patch Y1 to something you can hear move: a filter cutoff, or a VCO's
+4. Patch Y to something you can hear move: a filter cutoff, or a VCO's
    V/OCT through a quantizer.
 5. Right-click EXPR → *Examples* and pick one of the Patterns. Turn GAIN down
    first if Y feeds an audio path, because most patterns swing several
@@ -88,8 +88,11 @@ y = a sin(bx) / cosh(x/4)
 at 1, so on the default 0 to 2π domain the curve always meets itself
 at the end of the lap. *Knob steps* in the menu makes a knob fine for an
 amplitude or an offset. The menu's Basics are written for 0 to 2π; its
-Patterns bring their own domains ([EXPR examples](examples.md)). `r = cos(4θ)` is a polar curve and `(cos(3t), sin(2t))` a
-parametric one; Y carries their y coordinate.
+Patterns bring their own domains ([EXPR examples](examples.md)).
+`r = cos(4θ)` is a polar curve and `(cos(3t), sin(2t))` a parametric
+one: Y carries the curve's y coordinate and X its x, so the two jacks
+into a scope in X-Y mode draw the curve. On a `y =` equation X is the
+swept x itself, in the domain's own units.
 
 **The domain.** The range one lap sweeps is part of the equation, written
 the way Desmos restricts a curve: `y = a sin(bx) / cosh(x/4) {-10 ≤ x ≤ 10}`
@@ -132,7 +135,7 @@ wire is never a trigger.
 | RST (in) | Reset output smoothing. Does not move the wire. |
 | GAIN CV (in) | Added to the GAIN knob at 0.2× per volt, so 0 to 10 V sweeps it from 0 to 2 with the knob at zero. |
 | LIMIT CV (in) | Added to the LIMIT knob, 1 V per volt, held within 0.1 to 10 V. The display's scale follows the modulated ceiling. |
-| Y1, Y2 (out) | The conditioned voltage, the same on both jacks so it can go two places without a multiple. The light beside it flashes on a fault (division by zero, `ln` of a nonpositive, overflow, or a piecewise with no branch for this x), so it also marks the gaps between pieces. |
+| Y, X (out) | The curve's two coordinates as conditioned voltages: Y is the result, X is r cos θ for a polar equation, x(t) for a parametric one, and the swept x for a `y =` equation. Both go through the same gain, offset, limiter and smoothing. The light beside Y flashes on a fault (division by zero, `ln` of a nonpositive, overflow, or a piecewise with no branch for this x), so it also marks the gaps between pieces. |
 
 **Volts.** A result of 1 is 1 V. Then GAIN, offset (menu), a limiter
 at ±LIMIT (hard, or a soft knee from the menu), optional lag or slew, and a

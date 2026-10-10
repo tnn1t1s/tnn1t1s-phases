@@ -1,7 +1,7 @@
 """End-to-end: the declarative Expr spec compiles to a 20 HP panel with the
 display band, one row of four knob/CV pairs (slots 1 and 2, LOOP, POS),
 and a bottom row of PHASE, RST, GAIN and LIMIT (each a knob with its CV
-jack), Y1 and Y2 that clears its neighbours and the panel edges.
+jack), Y and X that clears its neighbours and the panel edges.
 
 The module draws the slot names and the LOOP and POS readings inside the
 display at runtime; the spec carries only the engraved labels."""
@@ -19,7 +19,7 @@ KNOB_ROW = SLOTS + SLICE
 OUTPUT_STAGE = [("param.main.gain", "cv.main.gain"), ("param.main.limit", "cv.main.limit")]
 # left to right along the bottom row
 BOTTOM = ("in.main.phase", "trig.main.reset", "param.main.gain", "cv.main.gain",
-          "param.main.limit", "cv.main.limit", "out.main.y", "out.main.y2")
+          "param.main.limit", "cv.main.limit", "out.main.y", "out.main.x")
 ANCHORS = ({a for pair in KNOB_ROW for a in pair} | set(BOTTOM)
            | {"display.main.tl", "display.main.br", "light.main.fault"})
 
@@ -104,7 +104,7 @@ def test_bottom_labels_share_one_line(theme, layout, footprints, fontbook,
         return real(x, y, text, *a, **k)
     monkeypatch.setattr(comp, "label", record)
     _build(theme, layout, footprints, fontbook)
-    names = ("PHASE", "RST", "GAIN", "LIMIT", "Y1", "Y2")
+    names = ("PHASE", "RST", "GAIN", "LIMIT", "Y", "X")
     ys = {round(seen[n], 4) for n in names}
     assert len(ys) == 1
     # and below every dial's tick ring

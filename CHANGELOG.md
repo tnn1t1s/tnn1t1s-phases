@@ -18,4 +18,6 @@ First release.
   equation, `{-8 ≤ x ≤ 8}`, or 0 to 2π without one; LOOP plays a half,
   third, quarter and so on down to a sixteenth of it, POS picks which, and
   PHASE maps 0–10 V across that slice. Volts only: gain, offset, hard/soft limiter, lag or slew, a
-  finite guard. The display draws the curve with the playhead on it.
+  finite guard, on two jacks: Y, and X, the curve's x coordinate, so a
+  polar or parametric curve draws on an X-Y scope. The display draws the
+  curve with the playhead on it.

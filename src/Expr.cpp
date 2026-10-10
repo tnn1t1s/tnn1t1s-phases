@@ -142,9 +142,10 @@ struct Expr : AgentModule {
     enum InputId { PHASE_INPUT, X_INPUT, TRIG_INPUT, RST_INPUT, CV_INPUT,
                    GAIN_CV_INPUT = CV_INPUT + kSavedSlots, LIMIT_CV_INPUT,
                    LOOP_CV_INPUT, POS_CV_INPUT, NUM_INPUTS };
-    // Y2 carries the same voltage as Y, for a second destination without a
-    // multiple. After Y so saved cables keep their id.
-    enum OutputId { Y_OUTPUT, Y2_OUTPUT, NUM_OUTPUTS };
+    // X carries the curve's x coordinate (r cos θ in polar, x(t) in
+    // parametric, the swept x itself on a y = curve), conditioned like Y,
+    // so X and Y together draw the curve on an X-Y scope.
+    enum OutputId { Y_OUTPUT, X_OUTPUT, NUM_OUTPUTS };
     enum LightId { FAULT_LIGHT, NUM_LIGHTS };
 
     enum Source { SRC_NONE, SRC_CABLE, SRC_ADJACENT };
@@ -158,7 +159,7 @@ struct Expr : AgentModule {
     Prepared* active   = nullptr;
     Prepared* outgoing = nullptr;    // crossfading out
     int fadeRemaining = 0, fadeLength = 0;
-    X::Conditioner condOut;          // the outgoing program's conditioning
+    X::Conditioner condOut, condOutX;   // the outgoing program's conditioning, Y and X
     // audio -> UI: retired programs, freed in the widget's step(). A ring
     // the UI drains before every publish, so the audio thread finds room
     // for the two it can retire per take; if it ever does not, it leaves
@@ -224,7 +225,7 @@ struct Expr : AgentModule {
 
     // --- audio state -------------------------------------------------------------
     dsp::SchmittTrigger rstTrig;
-    X::Conditioner cond;
+    X::Conditioner cond, condX;      // Y and X
     double tSec = 0.0;
     float prevU = 0.f;
     int prevSource = SRC_NONE;
@@ -273,8 +274,8 @@ struct Expr : AgentModule {
         configInput(LIMIT_CV_INPUT, "Limit CV (1 V per volt, added to the knob)");
         configInput(LOOP_CV_INPUT, "Loop CV (10 V sweeps all eight, added to the knob)");
         configInput(POS_CV_INPUT, "Position CV (10 V sweeps every slice, added to the knob)");
-        configOutput(Y_OUTPUT, "Y1");
-        configOutput(Y2_OUTPUT, "Y2 (same as Y1)");
+        configOutput(Y_OUTPUT, "Y");
+        configOutput(X_OUTPUT, "X (the curve's x coordinate, conditioned like Y)");
         onSampleRateChange();
         apply(kDefaultSource);
     }
@@ -428,6 +429,7 @@ struct Expr : AgentModule {
                 if (active && fadeLength > 0) {
                     outgoing = active;
                     condOut = cond;       // the outgoing path keeps its smoothing state
+                    condOutX = condX;
                     fadeRemaining = fadeLength;
                 } else if (active) {
                     retire(active);
@@ -467,6 +469,7 @@ struct Expr : AgentModule {
         if (doReset) {
             if (active) active->instance.reset();
             cond.reset();
+            condX.reset();
             tSec = 0.0;
             flags |= X::HF_RESET;
         }
@@ -482,7 +485,8 @@ struct Expr : AgentModule {
         // 4. Run, 5. condition. 0 V until a program is ready.
         updateGainLimit();
         loadConditioner(cond);
-        float y = 0.f, target = 0.f;
+        loadConditioner(condX);
+        float y = 0.f, xo = 0.f, target = 0.f;
         if (active) {
             const X::Program& prog = *active->program;
             for (size_t i = 0; i < prog.params.size(); i++) {
@@ -499,6 +503,8 @@ struct Expr : AgentModule {
             }
             y = cond.process(r.value, r.fault, args.sampleTime, &target);
             if (cond.lastClipped) flags |= X::HF_CLIP;
+            float xTarget = 0.f;
+            xo = condX.process(r.x, r.fault, args.sampleTime, &xTarget);
         }
 
         // Crossfade: the outgoing program gets the same inputs, its own
@@ -514,8 +520,11 @@ struct Expr : AgentModule {
             loadConditioner(condOut);
             float tOld = 0.f;
             const float yOld = condOut.process(r.value, r.fault, args.sampleTime, &tOld);
+            loadConditioner(condOutX);
+            const float xOld = condOutX.process(r.x, r.fault, args.sampleTime, &tOld);
             const float f = float(fadeRemaining) / float(fadeLength);   // 1 -> 0
             y = y * (1.f - f) + yOld * f;
+            xo = xo * (1.f - f) + xOld * f;
             if (--fadeRemaining <= 0) {
                 retire(outgoing);
                 outgoing = nullptr;
@@ -523,6 +532,8 @@ struct Expr : AgentModule {
         }
         y = clamp(y, -X::Conditioner::kCeiling, X::Conditioner::kCeiling);
         if (!std::isfinite(y)) y = 0.f;
+        xo = clamp(xo, -X::Conditioner::kCeiling, X::Conditioner::kCeiling);
+        if (!std::isfinite(xo)) xo = 0.f;
 
         // 7. History and display.
         history.record(target, y, float(x), flags,
@@ -534,7 +545,7 @@ struct Expr : AgentModule {
         dispSource.store(src, std::memory_order_relaxed);
 
         outputs[Y_OUTPUT].setVoltage(y);
-        outputs[Y2_OUTPUT].setVoltage(y);
+        outputs[X_OUTPUT].setVoltage(xo);
         lights[FAULT_LIGHT].setBrightnessSmooth((flags & X::HF_FAULT) ? 1.f : 0.f,
                                                 args.sampleTime);
         tSec += args.sampleTime;
@@ -1583,7 +1594,7 @@ struct ExprWidget : ModuleWidget, SvgHelper<ExprWidget> {
         bindParam<RoundBlackKnob>("param.main.pos", Expr::POS_PARAM);
         bindInput<PJ301MPort>("cv.main.pos", Expr::POS_CV_INPUT);
         bindOutput<PJ301MPort>("out.main.y", Expr::Y_OUTPUT);
-        bindOutput<PJ301MPort>("out.main.y2", Expr::Y2_OUTPUT);
+        bindOutput<PJ301MPort>("out.main.x", Expr::X_OUTPUT);
         bindLight<MediumLight<RedLight>>("light.main.fault", Expr::FAULT_LIGHT);
 
         for (int i = 0; i < X::kMaxSlots; i++)
@@ -1652,13 +1663,13 @@ struct ExprWidget : ModuleWidget, SvgHelper<ExprWidget> {
             centre(getInput(Expr::PHASE_INPUT), Vec(kKnobX, row(6)));
             centre(getInput(Expr::RST_INPUT), Vec(kJackX, row(6)));
             centre(getOutput(Expr::Y_OUTPUT), Vec(kKnobX, row(7)));
-            centre(getOutput(Expr::Y2_OUTPUT), Vec(kJackX, row(7)));
+            centre(getOutput(Expr::X_OUTPUT), Vec(kJackX, row(7)));
             wideBg->labels.push_back({"IN", Vec(kLabelX, row(6)), 11.f});
             wideBg->labels.push_back({"OUT", Vec(kLabelX, row(7)), 11.f});
             wideBg->labels.push_back({"PHASE", Vec(kKnobX, row(6) + jackLabelDy), 7.f});
             wideBg->labels.push_back({"RST", Vec(kJackX, row(6) + jackLabelDy), 7.f});
-            wideBg->labels.push_back({"Y1", Vec(kKnobX, row(7) + jackLabelDy), 7.f});
-            wideBg->labels.push_back({"Y2", Vec(kJackX, row(7) + jackLabelDy), 7.f});
+            wideBg->labels.push_back({"Y", Vec(kKnobX, row(7) + jackLabelDy), 7.f});
+            wideBg->labels.push_back({"X", Vec(kJackX, row(7) + jackLabelDy), 7.f});
             for (Widget* w : children) {
                 if (auto* l = dynamic_cast<ModuleLightWidget*>(w)) centre(l, Vec(kLabelX, row(7) - 12.f));
                 // The right-hand screws go to the new right edge.

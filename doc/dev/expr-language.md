@@ -30,8 +30,8 @@ The swept variable is whatever drives the module: the PHASE wire mapped
 across the domain (or the slice of it LOOP and POS select). With no wire
 it holds at the start of the slice. Using another mode's variable is an
 error that names the right form, so `y = sin(θ)` asks for `r =`. The
-compiled program returns both X and Y in every mode; the module puts Y
-on its outputs, Y1 and Y2 carrying the same voltage.
+compiled program returns both X and Y in every mode, and the module puts
+each on its own jack, conditioned the same way.
 
 ## Notation
 

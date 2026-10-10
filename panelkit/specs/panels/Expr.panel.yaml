@@ -8,8 +8,8 @@
 # each with its CV jack beside it: the equation's two letters (engraved
 # with the slot number; the module draws the declared name at runtime),
 # then LOOP and POS. The bottom row is the wire in (PHASE, RST) and the
-# output stage: GAIN and LIMIT with their CV jacks, then Y1 and Y2 (the
-# same voltage on both).
+# output stage: GAIN and LIMIT with their CV jacks, then Y and X (the
+# curve's two coordinates).
 module: Expr
 name: PHASES EXPR
 hp: 20
@@ -39,5 +39,5 @@ sections:
         - { label: RST,   id: trig.main.reset }
       - - { label: GAIN,  param: param.main.gain,  id: cv.main.gain }
         - { label: LIMIT, param: param.main.limit, id: cv.main.limit }
-      - - { label: Y1,    id: out.main.y, light: light.main.fault }
-        - { label: Y2,    id: out.main.y2 }
+      - - { label: Y,     id: out.main.y, light: light.main.fault }
+        - { label: X,     id: out.main.x }
