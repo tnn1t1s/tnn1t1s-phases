@@ -1,0 +1,43 @@
+# .clang-tidy -- static analysis for the Ghost DSP sources (issue #17, Layer 5).
+#
+# Focus on the checks that catch real audio-DSP bugs: undefined behaviour and
+# foot-guns (bugprone-*), CERT secure-coding rules (cert-*), and per-sample
+# performance hazards (performance-*). Stylistic / opinionated families
+# (readability-*, modernize-*, llvm-*, google-*) are intentionally left off so
+# the signal isn't drowned in churn on a C++11 codebase.
+#
+# A handful of checks in the enabled families are disabled below because they
+# are noise for this code (see the inline rationale on each).
+#
+# Run (local, needs LLVM clang-tidy -- Apple clang ships none):
+#   /opt/homebrew/opt/llvm/bin/clang-tidy src/*.cpp src/*Engine.hpp -- \
+#     -std=c++11 -Isrc -Ivendor/svghelper \
+#     -I<rack-sdk>/include -I<rack-sdk>/dep/include
+# CI runs it on ubuntu-latest (see .github/workflows/stress.yml).
+
+Checks: >
+  bugprone-*,
+  cert-*,
+  performance-*,
+  -bugprone-easily-swappable-parameters,
+  -bugprone-narrowing-conversions,
+  -cert-dcl21-cpp,
+  -cert-err58-cpp,
+  -cert-msc32-c,
+  -cert-msc51-cpp
+
+# Rationale for the disables:
+#   bugprone-easily-swappable-parameters -- the voice process() signatures take
+#       several adjacent float controls (tune, decay, pitch, ...) by design;
+#       flagging every one is pure noise.
+#   bugprone-narrowing-conversions -- float<->double<->int narrowing is pervasive
+#       and deliberate in sample-rate / index math; not a defect here.
+#   cert-err58-cpp -- static ROM-asset objects with non-trivial ctors are
+#       intentional module-load-time singletons.
+#   cert-msc32/msc51 (seeded PRNG) -- the only RNG is the test harness's
+#       deterministic LCG; determinism is the point.
+#   cert-dcl21-cpp -- postfix operator return-const-qualifier, not relevant.
+
+# Treat nothing as a hard error by default; CI decides via --warnings-as-errors.
+WarningsAsErrors: ''
+HeaderFilterRegex: 'src/.*\.hpp$'

@@ -1,0 +1,78 @@
+# Phases offline test gate: unit tests under sanitizers, plus static analysis.
+#
+# Runs on Linux, where the toolchain is complete in a way Darwin/arm64 isn't:
+#   * LeakSanitizer works (ASan's detect_leaks=1 default), so the ASan+UBSan
+#     runs are also real leak checks -- not possible on macOS/arm64.
+#   * Apple clang ships no clang-tidy; the Ubuntu LLVM does.
+#
+# clang-tidy needs the Rack SDK headers, so we fetch just the SDK zip (its
+# include/ + dep/include/ trees) -- no libRack, no full Rack build.
+name: stress
+
+# Manual-only: this is an on-demand pre-release gate, not a per-PR check.
+# Run it from the Actions tab, or `gh workflow run stress.yml`.
+on:
+  workflow_dispatch:
+
+env:
+  RACK_SDK_VERSION: "2.6.6"
+
+jobs:
+  stress:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install toolchain (clang, clang-tidy, cppcheck)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            clang clang-tidy cppcheck unzip curl
+          clang++ --version
+          clang-tidy --version
+          cppcheck --version
+
+      - name: Fetch Rack SDK headers
+        run: |
+          curl -fsSL -o /tmp/rack-sdk.zip \
+            "https://vcvrack.com/downloads/Rack-SDK-${RACK_SDK_VERSION}-lin-x64.zip"
+          unzip -q /tmp/rack-sdk.zip -d "$HOME"
+          echo "RACK_DIR=$HOME/Rack-SDK" >> "$GITHUB_ENV"
+          test -f "$HOME/Rack-SDK/include/rack.hpp"
+
+      - name: Wire resolution unit tests
+        run: |
+          mkdir -p reflect
+          make -C tests/wire run CXX=clang++ \
+            2>&1 | tee reflect/wire-tests-ci.log
+
+      - name: EXPR compiler and runtime unit tests
+        run: |
+          make -C tests/expr run CXX=clang++ \
+            2>&1 | tee reflect/expr-tests-ci.log
+
+      - name: Static analysis -- cppcheck
+        run: |
+          cppcheck --enable=warning,performance,portability,style \
+            --std=c++11 --error-exitcode=0 \
+            -I src -I vendor/svghelper \
+            src/expr/*.hpp src/lives/*.hpp 2>&1 | tee reflect/cppcheck-ci.log
+
+      - name: Static analysis -- clang-tidy
+        run: |
+          clang-tidy src/*.cpp -- \
+            -std=c++11 -I src -I vendor/svghelper \
+            -I "$RACK_DIR/include" -I "$RACK_DIR/dep/include" \
+            2>&1 | tee reflect/clang-tidy-ci.log
+
+      - name: Upload reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: stress-reports
+          path: |
+            reflect/wire-tests-ci.log
+            reflect/expr-tests-ci.log
+            reflect/cppcheck-ci.log
+            reflect/clang-tidy-ci.log
+          if-no-files-found: ignore

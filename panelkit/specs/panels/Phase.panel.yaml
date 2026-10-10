@@ -1,0 +1,28 @@
+# PHASES PHASOR — the family time source. Declarative panel spec (no coordinates).
+# Edit + re-run `uv run panelkit render Phase --no-preview`.
+#
+# The PHASE ramp laps every LAP beats of the incoming CLK. RATE is how many
+# pulses it counts as a beat, so on a 24 PPQN clock turning it up speeds the
+# lap up, as far as audio rate. It is on the panel because it is played, and
+# because a wrong rate looks like a broken module rather than a setting. The
+# CLK jack's light glows while pulses arrive and flashes on each lap.
+module: Phase
+name: PHASES PHASOR
+hp: 8
+
+sections:
+  - use: header
+
+  - kind: param_rows
+    rows:
+      - { label: DIR,   param: param.main.dir, control: switch, footprint: CKSS, cv: cv.main.dir }
+      - { label: START, param: param.main.start, cv: cv.main.start }
+      - { label: LEN,   param: param.main.len,   cv: cv.main.len }
+      - { label: LAP,   param: param.main.beats }
+      - { label: RATE,  param: param.main.rate }
+
+  - kind: io_row
+    cells:
+      - { label: CLK,   id: clock.main.in, light: light.main.clock }
+      - { label: RST,   id: trig.main.reset }
+      - { label: PHASE, id: out.main.phase }

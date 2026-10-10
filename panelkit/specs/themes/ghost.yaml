@@ -1,0 +1,52 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Ghost THEME — decides APPEARANCE only (colors, type, stroke weights, motif
+# proportions). Positions/spacing live in the layout config. Primitives reference
+# palette TOKENS by name (e.g. theme.color("rule")), never hex literals, so
+# re-skinning is a single-file edit. After changing anything here:
+#     python -m panelkit render <Module>
+# ─────────────────────────────────────────────────────────────────────────────
+name: ghost
+brand: "TNN1T1S"          # vendor wordmark drawn at the top of every panel
+
+# Palette tokens. Change a hex here and everything that references the token
+# updates. Names are roles, not colors, so the look can be retoned wholesale.
+palette:
+  bg_top:    "#e5613e"    # panel gradient, top edge (lives coral)
+  bg_bot:    "#d0512f"    # panel gradient, bottom edge (darker)
+  frame:     "#b54327"    # inset border line just inside the panel edge
+  pewter:    "#241310"    # brightest engraved tone: module name + cardinal ticks
+  label:     "#33201a"    # control labels + the brand wordmark
+  dim:       "#8a4a30"    # quietest tone: minor ticks, sub-text
+  rule:      "#a34526"    # engraved rules, knob ring, jack ring
+  knob_face: "#ffffff"    # white placeholder disc under a live knob/jack (debug contrast;
+                          #   the opaque live widget covers it in Rack)
+
+# Type. Each role -> a font file + size in POINTS (svgpanel renders in pt;
+# 1pt = 0.3528mm) + letter tracking in mm. Roles are referenced by name.
+fonts:
+  brand: { file: "res/fonts/SairaCondensed-SemiBold.ttf", size_pt: 6.8,  tracking: 1.8 }  # TNN1T1S wordmark (wide tracking)
+  title: { file: "res/fonts/SairaCondensed-Bold.ttf",     size_pt: 30.0, tracking: 0.5 }  # module name face (actual size = brand x name_scale below)
+  label: { file: "res/fonts/SairaCondensed-Medium.ttf",   size_pt: 8.0,  tracking: 0.3 }  # control + I/O labels; auto-shrinks to fit tight gaps
+
+# Stroke weights (mm).
+strokes:
+  ring_mm:  0.30          # knob/jack ring outline
+  rule_mm:  0.45          # chevron rules + ghost-separator flanking lines
+  frame_mm: 0.30          # inset panel border
+
+motifs:
+  # Header separators, as a fraction of the panel WIDTH.
+  chevron: { notch_mm: 1.2, span_frac: 0.90 }   # chevron rule: centre V depth (mm) + spans 90% of width
+  ghost:   { height_mm: 4.0, span_frac: 0.55, gap_pad_mm: 3.0 }   # glyph height; separator total width = span_frac of panel; gap_pad = extra space between glyph and each flanking line (smaller = lines reach closer to the ghost)
+  name_scale: 1.96                               # module-name size = brand size_pt x this (6.8 x 1.96 ≈ 13.3pt)
+
+  # Knob tick scale (two tiers + cardinals), measured from the reference dial.
+  divider:
+    sweep_deg: 300        # total arc the ticks span: min at 7 o'clock -> max at 5 o'clock
+    minor_step_deg: 7.5   # angle between minor ticks (300/7.5 + 1 = 41 ticks across the sweep)
+    tick_gap_mm: 0.4      # radial gap between the knob ring and the inner end of a tick
+    minor:    { len_mm: 0.6,  sw_mm: 0.18, color: dim }                 # fine ticks (length mm, width mm, palette token)
+    major:    { every: 4, len_mm: 0.9, sw_mm: 0.20, color: label }      # every 4th minor (≈30°/hour); longer + brighter
+    cardinal: { degs: [-90, 0, 90], len_mm: 1.11, sw_mm: 0.27, color: pewter }  # 9/12/3 o'clock: longest + brightest
+
+  label_clearance_mm: 4.2 # default vertical gap between a control and its label (mirrors layout.grid)

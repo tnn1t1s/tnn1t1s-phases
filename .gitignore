@@ -1,0 +1,41 @@
+# Build artifacts
+build/
+dist/
+*.o
+*.d
+*.dylib
+*.so
+*.dll
+
+# Compiled test binaries
+tests/dsp/test_*
+!tests/dsp/test_*.cpp
+*.dSYM/
+
+# macOS
+.DS_Store
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+tools/_preview/
+
+# Internal scratch (agent briefs, run logs, raw tool output) -- not released
+reflect/
+# Source material: licensed/commercial audio kept for composition only. Never
+# committed and never redistributed -- the repo ships machinery, not content.
+scratch/
+*.egg-info/
+session-backup-*.vcv
+
+# Experiment audio tables: regenerate from source clips (src/experiments/README.md)
+res/amen*.f32
+patches/demos/*.mp4
+!patches/demos/luma-seq16.mp4
+patches/demos/*.wav
+
+# Generated audio tables: built from source clips, not authored here.
+# The repo ships machinery, not content.
+res/*.f32
+patches/demos/*.f32

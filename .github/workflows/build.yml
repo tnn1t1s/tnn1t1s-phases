@@ -1,0 +1,72 @@
+# Cross-platform build confidence for the Library toolchain targets
+# (RELEASE.md checklist item 1). Windows + Linux cross-compile in the
+# community toolchain container; mac x64/arm64 build natively against the
+# SDK zip. Build confidence only: no version stamping, no publishing --
+# the release process in RELEASE.md handles those by hand.
+#
+# The panel tests do not run here: panelkit is a local editable dev
+# dependency, and the rendered SVGs are committed artifacts.
+name: build
+
+on:
+  push:
+  workflow_dispatch:
+
+env:
+  rack-sdk-version: "2.6.6"
+  rack-plugin-toolchain-dir: /home/build/rack-plugin-toolchain
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  build-win-linux:
+    name: ${{ matrix.platform }}
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/qno/rack-plugin-toolchain-win-linux
+      options: --user root
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [win-x64, lin-x64]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build plugin
+        run: |
+          export PLUGIN_DIR=$GITHUB_WORKSPACE
+          pushd ${{ env.rack-plugin-toolchain-dir }}
+          make plugin-build-${{ matrix.platform }}
+      - uses: actions/upload-artifact@v4
+        with:
+          path: ${{ env.rack-plugin-toolchain-dir }}/plugin-build
+          name: ${{ matrix.platform }}
+
+  build-mac:
+    name: mac-${{ matrix.platform }}
+    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [x64, arm64]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Get Rack-SDK
+        run: |
+          pushd $HOME
+          # One SDK per architecture; -f so a missing zip fails here, not in unzip.
+          curl -sfL -o Rack-SDK.zip https://vcvrack.com/downloads/Rack-SDK-${{ env.rack-sdk-version }}-mac-${{ matrix.platform }}.zip
+          unzip -q Rack-SDK.zip
+      - name: Build plugin
+        run: |
+          CROSS_COMPILE_TARGET_x64=x86_64-apple-darwin
+          CROSS_COMPILE_TARGET_arm64=arm64-apple-darwin
+          export RACK_DIR=$HOME/Rack-SDK
+          export CROSS_COMPILE=$CROSS_COMPILE_TARGET_${{ matrix.platform }}
+          make dep
+          make dist
+      - uses: actions/upload-artifact@v4
+        with:
+          path: dist/*.vcvplugin
+          name: mac-${{ matrix.platform }}

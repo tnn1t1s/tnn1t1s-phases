@@ -1,0 +1,43 @@
+# PHASES EXPR — a live-compiled equation on the wire. Declarative panel spec
+# (no coordinates). Edit + re-run `uv run panelkit render Expr --no-preview`.
+#
+# The display is most of the panel: it draws the program's curve (pure
+# programs) or its output history (stateful ones), the slice LOOP and POS
+# select, the limit guides, the status line and the parameter names.
+# Clicking it opens the program editor. Below it, one row of four knobs,
+# each with its CV jack beside it: the equation's two letters (engraved
+# with the slot number; the module draws the declared name at runtime),
+# then LOOP and POS. The bottom row is the wire in (PHASE, RST) and the
+# output stage: GAIN and LIMIT with their CV jacks, then Y1 and Y2 (the
+# same voltage on both).
+module: Expr
+name: PHASES EXPR
+hp: 20
+
+sections:
+  - use: header
+
+  - kind: display             # C++ draws curve/history, slice, status and names here
+    id: display.main
+    height_mm: 64
+    border: true
+
+  - kind: param_grid
+    columns: 4
+    slots: 1                  # one row, centred under the display
+    params:
+      - { label: "1", param: param.main.p1, cv: cv.main.p1 }
+      - { label: "2", param: param.main.p2, cv: cv.main.p2 }
+      - { label: LOOP, param: param.main.loop, cv: cv.main.loop }
+      - { label: POS,  param: param.main.pos,  cv: cv.main.pos }
+
+  - kind: io_row
+    group_gap: 1.0
+    rule_lift_mm: 2.26        # about 20 px of the 900 px render: air under the rule
+    groups:
+      - - { label: PHASE, id: in.main.phase }
+        - { label: RST,   id: trig.main.reset }
+      - - { label: GAIN,  param: param.main.gain,  id: cv.main.gain }
+        - { label: LIMIT, param: param.main.limit, id: cv.main.limit }
+      - - { label: Y1,    id: out.main.y, light: light.main.fault }
+        - { label: Y2,    id: out.main.y2 }

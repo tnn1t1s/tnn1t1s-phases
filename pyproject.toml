@@ -1,0 +1,19 @@
+[project]
+name = "phases"
+version = "0"
+description = "Panel tooling for the PHASES VCV Rack plugin"
+requires-python = ">=3.12"
+dependencies = []
+
+[dependency-groups]
+dev = ["panelkit", "pytest>=8", "pytest-env"]
+
+[tool.uv.sources]
+# The exact commit is pinned in uv.lock, so panel output stays reproducible
+# without hardcoding a rev here. Refresh with: uv lock --upgrade-package panelkit
+panelkit = { git = "https://github.com/tnn1t1s/vcv-panelkit" }
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+env = ["PYTHONHASHSEED=0"]
