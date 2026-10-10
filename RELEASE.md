@@ -15,21 +15,20 @@ receives squashed commits only. Version `2.0.0` (Rack 2, first release).
 
 ## 1. Code and manifest hygiene
 
-- [ ] `plugin.json` URLs point at `tnn1t1s/tnn1t1s-phases`, and each one
-      resolves without a login once the repository is public.
-- [ ] Every module tag is on Rack's tag list; on load, `log.txt` shows no tag
-      or manifest warnings for `tnn1t1s-phases`.
+- [x] `plugin.json` URLs point at `tnn1t1s/tnn1t1s-phases`, and each one
+      resolves without a login once the repository is public. (All return
+      200 unauthenticated, 2026-10-10.)
+- [x] Every module tag is on Rack's tag list; on load, `log.txt` shows no tag
+      or manifest warnings for `tnn1t1s-phases`. (`tools/headless-check.sh`.)
 - [ ] Per-module `keywords` present (they are) and read back in the module
       browser search.
-- [ ] No shipping code refers to modules that do not ship. `src/AgentModule.hpp`
-      and comments in `src/Phase.cpp`, `src/Expr.cpp`, `src/expr/*.hpp`,
-      `src/lives/*.hpp` mention LIVES, TAPES and CLIPS. Rewrite them to
-      describe Phases as it is.
-- [ ] No debug logging on hot paths: `grep -n 'DEBUG(\|INFO(' src` is empty;
+- [x] No shipping code refers to modules that do not ship. The directory
+      `src/lives/` and the C++ namespace `Lives` keep their internal names;
+      neither is visible to users.
+- [x] No debug logging on hot paths: `grep -n 'DEBUG(\|INFO(' src` is empty;
       the one `WARN` (Expr.cpp, a backwards saved domain) stays.
-- [ ] The Rack SDK version is the same in `build.yml` (2.6.4 today) and
-      `stress.yml` (2.6.6 today). Use 2.6.6, the version Rack runs here.
-- [ ] `make` with no `RACK_DIR` override fails with a clear message on a
+- [x] The Rack SDK version is 2.6.6 in both `build.yml` and `stress.yml`.
+- [x] `make` with no `RACK_DIR` override fails with a clear message on a
       machine without `~/Developer/vcv-rack`; CI and the Library set
       `RACK_DIR` themselves.
 
@@ -84,6 +83,13 @@ on Linux with LeakSanitizer, plus cppcheck and clang-tidy. Read the
 uploaded reports. `cppcheck` runs with `--error-exitcode=0`, so a green job
 does not mean a clean report; triage every finding.
 
+Triage of the 2.0.0 candidate: fixed the history ring's pointer walk across
+`HistoryBin` fields (cppcheck objectIndex), a cloned branch in the tokenizer
+and a dead store in the display. Left as is: `unusedStructMember` (members
+used from other headers, a false positive of per-file analysis), unchecked
+`snprintf` returns (fixed-size buffers sized for their formats), and style
+suggestions (pass-by-reference, enum base type, `std::accumulate`).
+
 ### Manual QA in Rack, installed from the `.vcvplugin`
 
 Install the packaged plugin (`dist/*.vcvplugin` into the plugins folder),
@@ -117,8 +123,8 @@ Both modules
 - [ ] Sample rates 44.1, 48, 96 and 192 kHz; engine threads 1 and 4.
 - [ ] Rack's dark-panel setting and UI zoom 50%–400% render correctly.
 - [ ] `patches/demos/` patches load from the packaged build. The one demo
-      there today (`expr-pentatonic.vcv`) still references
-      `tnn1t1s-lives` and has to be rebuilt.
+      there today (`expr-pentatonic.vcv`) is re-slugged to `tnn1t1s-phases`
+      and passes `tools/headless-check.sh`.
 - [ ] `log.txt` has no warnings or errors from `tnn1t1s-phases` after a
       session.
 
@@ -144,8 +150,8 @@ borrow a machine for an hour or state it in the submission.
 
 - [ ] `README.md`, `doc/PhasesUserManual.md` describe the two shipping
       modules and nothing else; screenshots current.
-- [ ] `CHANGELOG.md` 2.0.0 entry names PHASES PHASOR and PHASES EXPR (it
-      still says LIVES PHASE and LIVES EXPR) and gets a date.
+- [ ] `CHANGELOG.md` 2.0.0 entry names PHASES PHASOR and PHASES EXPR (done)
+      and gets a date on the day of the tag.
 - [ ] Demo patches in `patches/demos/` built against `tnn1t1s-phases`, one
       per idea, each loading clean.
 - [ ] `res/README.md`, `src/README.md`, `tests/README.md` match the tree.

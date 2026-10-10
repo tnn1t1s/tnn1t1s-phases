@@ -1244,7 +1244,7 @@ struct ExprDisplay : Widget {
         std::string left = module->uiProgram ? module->uiProgram->name : "no program";
         if (!module->compileOk) left += string::f("  err %d:%d", module->compileLine, module->compileCol);
         else if (module->uiProgram && module->uiProgram->pure && !preview.complete) left += "  partial";
-        const char* src = "";
+        const char* src;
         switch (module->dispSource.load()) {
         case Expr::SRC_CABLE:    src = "phase"; break;
         case Expr::SRC_ADJACENT: src = "adj"; break;

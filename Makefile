@@ -21,6 +21,7 @@ SOURCES += src/Phase.cpp
 SOURCES += src/Expr.cpp
 
 DISTRIBUTABLES += res
+DISTRIBUTABLES += $(wildcard LICENSE*)
 
 include $(RACK_DIR)/plugin.mk
 

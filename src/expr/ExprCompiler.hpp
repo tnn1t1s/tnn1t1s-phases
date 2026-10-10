@@ -217,8 +217,8 @@ struct Lexer {
             }
             size_t slen = 0;
             if (const char* s = symbol(slen)) {
-                if (isLogical(s)) push(T_OP, s, 0, l, c);
-                else if (std::isalpha((unsigned char) s[0])) push(T_IDENT, s, 0, l, c);
+                // "and"/"or" are operators even though they spell like names.
+                if (std::isalpha((unsigned char) s[0]) && !isLogical(s)) push(T_IDENT, s, 0, l, c);
                 else push(T_OP, s, 0, l, c);
                 pos += slen; col++;
                 continue;

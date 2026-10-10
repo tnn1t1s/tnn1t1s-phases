@@ -57,7 +57,6 @@ struct AtomicBin {
 
 template <int CAPACITY>
 struct HistoryRing {
-    static const int kCapacity = CAPACITY;
     static constexpr float kBinsPerSecond = 128.f;
 
     detail::AtomicBin bins[CAPACITY];
@@ -111,7 +110,9 @@ struct HistoryRing {
     void publish() {
         const uint64_t w = written.load(std::memory_order_relaxed);
         detail::AtomicBin& b = bins[w % CAPACITY];
-        const float* src = &cur.tMin;
+        const float src[10] = {cur.tMin, cur.tMax, cur.tFirst, cur.tLast,
+                               cur.aMin, cur.aMax, cur.aFirst, cur.aLast,
+                               cur.xFirst, cur.xLast};
         for (int i = 0; i < 10; i++) b.f[i].store(src[i], std::memory_order_relaxed);
         b.flags.store(cur.flags, std::memory_order_relaxed);
         b.revision.store(cur.revision, std::memory_order_relaxed);
@@ -130,8 +131,12 @@ struct HistoryRing {
             const uint64_t start = w - count;
             for (uint64_t i = 0; i < count; i++) {
                 const detail::AtomicBin& b = bins[(start + i) % CAPACITY];
-                float* dst = &out[i].tMin;
-                for (int k = 0; k < 10; k++) dst[k] = b.f[k].load(std::memory_order_relaxed);
+                float v[10];
+                for (int k = 0; k < 10; k++) v[k] = b.f[k].load(std::memory_order_relaxed);
+                HistoryBin& o = out[i];
+                o.tMin = v[0]; o.tMax = v[1]; o.tFirst = v[2]; o.tLast = v[3];
+                o.aMin = v[4]; o.aMax = v[5]; o.aFirst = v[6]; o.aLast = v[7];
+                o.xFirst = v[8]; o.xLast = v[9];
                 out[i].flags = b.flags.load(std::memory_order_relaxed);
                 out[i].revision = b.revision.load(std::memory_order_relaxed);
             }
