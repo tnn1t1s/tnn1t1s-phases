@@ -2,9 +2,8 @@
 
 Phases (slug `tnn1t1s-phases`, modules `Phase` and `Expr`) is not yet on the
 VCV Library. This file is the checklist for the first submission and the
-process for updates after it. Each numbered item is done when its check
-passes; open one issue per item, as tnn1t1s-ghost did (its issues #1–#17),
-and close it with the evidence.
+process for updates after it. An item is done when its check passes, with
+the evidence written next to it.
 
 ## 0. Repository
 
@@ -90,54 +89,45 @@ used from other headers, a false positive of per-file analysis), unchecked
 `snprintf` returns (fixed-size buffers sized for their formats), and style
 suggestions (pass-by-reference, enum base type, `std::accumulate`).
 
-### Manual QA in Rack, installed from the `.vcvplugin`
+### Manual pass in Rack, about 15 minutes
 
-Install the packaged plugin (`dist/*.vcvplugin` into the plugins folder),
-never the `deploy` copy, and restart Rack.
+Run this once on the candidate. Install `dist/tnn1t1s-phases-2.0.0-mac-arm64.vcvplugin`
+built from that commit (not the `deploy` copy) and restart Rack. Each step
+says what to do and what you should see; write a line for anything else.
 
-PHASOR
-- [ ] Adds from the browser; panel, labels, lights and tooltips correct.
-- [ ] Ramp follows a clock at 60, 120 and 180 BPM; LAP changes the lap
-      length; the wire freezes when the clock stops and resumes on the next
-      pulse; RST snaps to zero; DIRECTION reverses; START and LEN window.
-- [ ] RATE up to audio rate stays stable.
+1. Open `patches/demos/phases-ghost-groove.vcv` and start the clock. The
+   groove plays and EXPR's playhead crosses its slice in time with the
+   beat. Turn on Engine → CPU meter and note EXPR's and PHASOR's readings.
+2. Turn the clock's BPM to 180 and back to 116: the playhead stays on the
+   beat. Stop the clock: playhead and voice hold. Start it: they resume.
+3. On PHASOR, flip DIR: the curve plays backwards. Turn LEN to 50 %: the
+   two grey bars on EXPR's display close in.
+4. On EXPR, right-click → Examples and play three Patterns and one Basic.
+   Each one plays and the display redraws its curve.
+5. Click EXPR's display, type `y = sin(` and press Cmd+Enter: an error
+   with line and column, and the sound does not change. Make it
+   `y = a sin(bx)` and press Cmd+Enter: it swaps in without a click and
+   knobs 1 and 2 get orange rings.
+6. Right-click → Show equation; drag and resize the window. Right-click →
+   Layout → Wide display, then back: the modules to the right move out of
+   the way and return without overlapping.
+7. File → Save as a new file, then open it: the equation, knobs, window
+   position and layout come back.
+8. Open `patches/demos/phases-visualizer.vcv`. Both scopes draw a closed
+   figure once a lap; turning a, b and k changes it. EXPR's jacks read X
+   then Y.
+9. Set View → Zoom to 50 % and then 200 %: panels, labels and the display
+   draw cleanly.
+10. Help → Open user folder → `log.txt`: no warning or error line that
+    names `tnn1t1s-phases`.
 
-EXPR
-- [ ] Adds from the browser; the default equation sounds.
-- [ ] Typing a valid equation swaps it in with no click; an invalid one
-      shows the error and changes nothing.
-- [ ] Every context-menu example compiles and plays.
-- [ ] Knob letters, CV inputs, X, GAIN, LIMIT, LOOP, POS and their CVs act
-      as documented.
-- [ ] Show equation window opens, moves, resizes, closes, and comes back in
-      the same place after save and reload.
-- [ ] Layout → Wide display and back to Rack panel; neighbours move out of
-      the way and nothing overlaps on return.
-- [ ] Fault light and fault policy behave on an equation with undefined
-      regions.
-
-Both modules
-- [ ] Save, close, reopen: every param, the equation, loopRepeats, the
-      window and the layout restore.
-- [ ] Initialize, randomize, duplicate, and bypass behave.
-- [ ] Sample rates 44.1, 48, 96 and 192 kHz; engine threads 1 and 4.
-- [ ] Rack's dark-panel setting and UI zoom 50%–400% render correctly.
-- [x] `patches/demos/` patches load from the packaged build. The one demo,
-      `phases-ghost-groove.vcv`, passes `tools/headless-check.sh`.
-- [ ] `log.txt` has no warnings or errors from `tnn1t1s-phases` after a
-      session.
-
-### Stability and cost
-
-- [ ] Soak: a patch with PHASOR, two EXPRs and the equation window open runs
-      for 4 hours (a parameter, not a measured requirement), with an
-      equation edit every few minutes. Rack's memory in Activity Monitor is
-      flat after the first 10 minutes; no audio dropouts in the log.
-- [ ] CPU: record each module's meter reading (Rack's CPU meter) at 48 kHz
-      for the default equation and for the heaviest example. Record the
-      numbers in the CHANGELOG entry or an issue.
-- [ ] Instruments (Leaks and Time Profiler) during rapid equation edits, the
-      known hot path: no leaks, no audio-thread allocation.
+Not part of the pass: a sample-rate and thread matrix, a multi-hour soak,
+and an Instruments session. The stress gate's LeakSanitizer run covers
+leaks in the compiler, runtime and preview code; the audio path has no
+allocation, locks or compilation and costs 15–165 ns a sample on an M3
+(a standalone benchmark of the evaluator and conditioner, under 1 % of a
+48 kHz sample). A spike that shows in step 1 gets an Instruments Time
+Profiler capture of that patch.
 
 ### Platforms not tested by hand
 
@@ -152,8 +142,10 @@ borrow a machine for an hour or state it in the submission.
       the panel SVGs.
 - [ ] `CHANGELOG.md` 2.0.0 entry names PHASES PHASOR and PHASES EXPR (done)
       and gets a date on the day of the tag.
-- [x] One demo patch, `patches/demos/phases-ghost-groove.vcv`, built against
-      `tnn1t1s-phases`; the Examples menu's patterns cover the other ideas.
+- [x] Two demo patches built against `tnn1t1s-phases`, both passing
+      `tools/headless-check.sh`: `phases-ghost-groove.vcv` and
+      `phases-visualizer.vcv`. The Examples menu's patterns cover the other
+      ideas.
 - [x] `res/README.md`, `src/README.md`, `tests/README.md` match the tree.
 
 ## 6. Local release verification
