@@ -86,4 +86,6 @@ Organizing Time: Thinking with gen~* (Cycling '74, 2022).
 
 ## License
 
-MIT. Bundled fonts are under the SIL Open Font License.
+MIT (`LICENSE`). The bundled fonts keep their own licenses: Inter and
+Saira Condensed the SIL Open Font License, Latin Modern Math the GUST Font
+License. `res/fonts/README.md` lists each with its license file.

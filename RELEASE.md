@@ -95,6 +95,9 @@ Run this once on the candidate. Install `dist/tnn1t1s-phases-2.0.0-mac-arm64.vcv
 built from that commit (not the `deploy` copy) and restart Rack. Each step
 says what to do and what you should see; write a line for anything else.
 
+2.0.0 was signed off on the maintainer's play-testing in Rack, not by
+running these steps one by one.
+
 1. Open `patches/demos/phases-ghost-groove.vcv` and start the clock. The
    groove plays and EXPR's playhead crosses its slice in time with the
    beat. Turn on Engine → CPU meter and note EXPR's and PHASOR's readings.
