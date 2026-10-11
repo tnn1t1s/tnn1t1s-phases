@@ -924,7 +924,6 @@ struct ExprDisplay : Widget {
     uint32_t previewRevision = 0;
     double previewParams[X::kMaxSlots];
     double previewD0 = 0, previewD1 = 0;
-    float previewGain = 1, previewOffset = 0, previewLimit = 5, previewKnee = 0;
     // The PHASE window (START and LEN, fractions of the lap) set by the
     // widget each frame; a negative start means none is known.
     float winStart = -1.f, winLen = 1.f;
@@ -1054,10 +1053,9 @@ struct ExprDisplay : Widget {
         const uint32_t rev = module->revision;
         const X::Domain dom = X::domainOf(prog.get());
         const double d0 = dom.lo, d1 = dom.hi;
-        const float g = module->gainNow.load(), o = module->offset.load();
-        const float L = module->limitNow.load(), K = module->knee.load();
-        bool dirty = rev != previewRevision || d0 != previewD0 || d1 != previewD1
-                  || g != previewGain || o != previewOffset || L != previewLimit || K != previewKnee;
+        // Gain, offset, limit and knee are applied at draw time, so moving
+        // them (GAIN or LIMIT CV moves them every frame) needs no rebuild.
+        bool dirty = rev != previewRevision || d0 != previewD0 || d1 != previewD1;
         X::Inputs in;
         in.v[X::IN_DT] = 1.0 / 48000.0;
         in.v[X::IN_SR] = 48000.0;
@@ -1080,7 +1078,6 @@ struct ExprDisplay : Widget {
         constexpr int kPreviewCoarse = 511, kPreviewBudget = 2048;
         preview.build(*prog, in, d0, d1, kPreviewCoarse, kPreviewBudget);
         previewRevision = rev; previewD0 = d0; previewD1 = d1;
-        previewGain = g; previewOffset = o; previewLimit = L; previewKnee = K;
     }
 
     void drawCurve(NVGcontext* vg, float w, float plotH) {
